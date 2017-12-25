@@ -24,5 +24,6 @@ setup(
         'keras',
         'h5py',
         'tables',
+        'pillow',
     ]
 )
