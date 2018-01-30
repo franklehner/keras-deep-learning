@@ -25,5 +25,6 @@ setup(
         'h5py',
         'tables',
         'pillow',
+        'opencv-python',
     ]
 )
