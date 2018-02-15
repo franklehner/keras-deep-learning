@@ -26,5 +26,6 @@ setup(
         'tables',
         'pillow',
         'opencv-python',
+        'gensim',
     ]
 )
