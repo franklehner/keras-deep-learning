@@ -24,5 +24,8 @@ setup(
         'keras',
         'h5py',
         'tables',
+        'pillow',
+        'opencv-python',
+        'gensim',
     ]
 )
