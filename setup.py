@@ -18,7 +18,7 @@ setup(
         'scipy',
         'matplotlib',
         'Cython',
-        'scikit-learn==0.19.1',
+        'scikit-learn',
         'tensorflow',
         'theano',
         'keras',
