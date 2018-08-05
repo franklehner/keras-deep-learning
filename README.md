@@ -8,7 +8,7 @@ Installation
 First create a virtual env as follows
 
 ```
-$ mkvirtualenv -p /usr/bin/python3.4 <env>
+$ mkvirtualenv -p /usr/bin/python3 <env>
 ```
 
 Install requirements
