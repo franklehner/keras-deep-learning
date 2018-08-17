@@ -16,7 +16,7 @@ from keras.datasets import mnist as _mnist
 from lib.simple_neural_network import Model as _Model
 
 
-class Script(object):
+class Script:
     """
     Main Script class
     """
