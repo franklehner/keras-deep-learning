@@ -15,17 +15,28 @@ from keras.models import load_model
 
 class Script:
     """
-    Main class
+    Load a digit from the keras mnist data and predict what digit is shown
+
+    Methods:
+    ========
+        - run: Run the script
+        - plot_number: Plot the digit which the model should predict
+        - get_options: Parse the command line
     """
     def __init__(self):
         """
         Constructor
+
+        Attributes:
+        ===========
+            - self.options: The command line options
         """
         self.options = self.get_options()
 
     def run(self):
         """
-        Runner
+        Load the mnist data plot the digit from command line idx
+        and predict the digit
         """
         (source_train, _), (source_test, _) = mnist.load_data()
 
@@ -53,7 +64,12 @@ class Script:
     @staticmethod
     def plot_number(vector):
         """
-        Plot number
+        Reshape the vector to the image format from the mnist dataset and
+        plot the digit
+
+        Params:
+        =======
+            -vector: numpy array
         """
         vector = vector.reshape(28, 28)
         plt.imshow(vector)
@@ -62,7 +78,7 @@ class Script:
     @classmethod
     def get_options(cls):
         """
-        Get options
+        Parse the command line
         """
         parser = argparse.ArgumentParser(description="use mnist model")
 
