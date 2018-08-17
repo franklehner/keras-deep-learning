@@ -8,7 +8,7 @@ import keras.layers.core as _layers_core
 import keras.utils as _utils
 
 
-class Model(object):
+class Model:
     """
     Class Model
 
@@ -149,7 +149,7 @@ class Model(object):
 
     def compile_loss_function(
             self, loss="categorical_crossentropy", metrics=None, optimizer="sgd"
-                              ):
+        ):
         """
         Compile the loss function
 
