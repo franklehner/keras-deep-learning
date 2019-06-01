@@ -27,5 +27,5 @@ setup(
         'pillow',
         'opencv-python',
         'gensim',
-    ]
+    ],
 )
