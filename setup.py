@@ -13,6 +13,8 @@ setup(
     author_email='fl@solute.de',
     packages=find_packages(),
     install_requires=[
+        'click',
+        'attr',
         'numpy',
         'pandas',
         'scipy',
