@@ -14,7 +14,6 @@ setup(
     packages=find_packages(),
     install_requires=[
         'click',
-        'attr',
         'numpy',
         'pandas',
         'scipy',
@@ -22,6 +21,7 @@ setup(
         'Cython',
         'scikit-learn',
         'tensorflow',
+        'tensorboard',
         'theano',
         'keras',
         'h5py',
