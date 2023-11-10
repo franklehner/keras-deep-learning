@@ -58,7 +58,7 @@ class MLP:
             metrics=metrics,
         )
 
-    def fit(self, data: ndarray, targets: ndarray, epochs: int, batchsize: int= 128):
+    def fit(self, data: ndarray, targets: ndarray, epochs: int, batchsize: int = 128):
         """Fit the training data"""
         self.model.fit(
             x=data,
