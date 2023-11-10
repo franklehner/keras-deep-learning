@@ -1,8 +1,11 @@
 """Application for mnist classifier mlp
 """
 from typing import List, Tuple
+from numpy import ndarray
+import matplotlib.pyplot as plt
 
-from src.domain.mnist_mlp import MnistClassifier
+from src.domain.mnist_mlp import MnistClassifier, MnistLoader
+from src.domain.models.multilayer_perceptron import MLP
 from src.infra.datasets import Mnist as MnistDatasets
 
 
@@ -69,3 +72,19 @@ def run(  # pylint: disable=too-many-arguments
     model.save()
 
     print(f"\n\nTest accuracy: {accuracy}")
+
+
+def plot_image(image: ndarray, cmap: str = "gray"):
+    """Plot image
+    """
+    plt.imshow(image, cmap=cmap)
+    plt.show()
+
+
+def load_model(filepath: str) -> MLP:
+    """Load trained model
+    """
+    model = MnistLoader(model_path=filepath)
+    mlp = model.load()
+
+    return mlp
