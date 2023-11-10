@@ -83,3 +83,24 @@ class MnistClassifier:
     def save(self):
         """Save the model"""
         self.mlp.save()
+
+
+@dataclass
+class MnistLoader:
+    """Load mlp model
+    """
+    model_path: str
+
+    def load(self) -> MLP:
+        """Load model for MnistClassifier
+        """
+        model = MLP(model_type="", model_path=self.model_path, load=True)
+
+        return model
+
+    def predict(self, model: MLP, image: ndarray) -> int:
+        """Predict 
+        """
+        result = model.predict(image=image)
+
+        return result[0]

@@ -91,3 +91,10 @@ class MLP:
             raise ValueError("Model name should end with keras")
 
         save_model(self.model, filepath=self.model_path)
+
+    def predict(self, image: ndarray) -> ndarray:
+        """predict image
+        """
+        result = self.model.predict(image)
+
+        return result
