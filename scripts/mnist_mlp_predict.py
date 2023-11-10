@@ -33,6 +33,7 @@ def cli(model_name: str):
     labels = mnist.y_test[indexes]
     model = mlp_cls.load_model(filepath=filename)
     for i in range(len(indexes)):
+        mlp_cls.plot_image(image=images[i])
         print(f"Real label: {np.argmax(labels[i])}")
         result = model.predict(image=test_images[i].reshape(-1, test_images[i].shape[0]))
         print(f"Predicted: {np.argmax(result)}")
