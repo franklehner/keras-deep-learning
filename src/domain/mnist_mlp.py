@@ -1,106 +1,50 @@
 """Usecase for mnist classification with mlp
 """
-from dataclasses import dataclass, field
-from itertools import zip_longest
-from typing import List, Optional, Tuple
+from dataclasses import dataclass
 
-from numpy import ndarray
-
-from src.domain.models.multilayer_perceptron import MLP
+from src.app.dataset_reader import MnistDataSet
+from src.app.mnist_classifier_mlp import NetBuilderMLP
+from src.app.yaml_reader import YamlNetwork
 
 
 @dataclass
-class MnistClassifier:
-    """MnistClassifier"""
+class MLP:
+    """fully dense net"""
 
-    input_dim: int
-    layers: List[Tuple[str, int]]
-    activations: List[str]
-    dropout: List[float]
+    path: str
     model_path: str
-    batch_size: Optional[int] = None
-    mlp: MLP = field(init=False)
+    yaml_network: YamlNetwork
+    mnist_dataset: MnistDataSet
 
-    def __post_init__(self):
-        self.mlp = self.create_model()
-
-    def create_model(self):
-        """create model"""
-        mlp = MLP(model_type="Sequential", model_path=self.model_path)
-        for layer, activation, rate in zip_longest(
-            self.layers,
-            self.activations,
-            self.dropout,
-        ):
-            mlp.add_layer(layer_type=layer[0], units=layer[1], input_dim=self.input_dim)
-            mlp.add_activation(activation=activation)
-            if rate:
-                mlp.add_dropout(rate=rate)
-        mlp.summary()
-
-        return mlp
-
-    def compile(
-        self,
-        loss: str,
-        optimizer: str,
-        metrics: List[str],
-        filename: Optional[str] = None,
-    ):
-        """Compile the model"""
-        if filename:
-            self.mlp.plot_model(filepath=filename)
-        else:
-            self.mlp.plot_model()
-
-        self.mlp.compile(loss=loss, optimizer=optimizer, metrics=metrics)
-
-    def fit(self, x_train: ndarray, y_train: ndarray, epochs: int):
-        """fit the model"""
-        if not self.batch_size:
-            self.batch_size = 128
-
-        self.mlp.fit(
-            data=x_train,
-            targets=y_train,
-            epochs=epochs,
-            batchsize=self.batch_size,
+    def run(self):
+        """usecase"""
+        network = self.yaml_network.read_network_from_yaml(
+            network_path=self.path,
+        )
+        mnist_dataset = self.mnist_dataset.load_dataset()
+        net_builder = NetBuilderMLP(
+            model_path=self.model_path,
+            dataset=mnist_dataset,
+            network=network,
+        )
+        x_train, y_train, x_test, y_test = net_builder.prepare_dataset()
+        model = net_builder.parse_network()
+        model.summary()
+        model.compile(
+            loss="categorical_crossentropy",
+            optimizer="adam",
+            metrics=["accuracy"],
+        )
+        model.fit(
+            x_train=x_train,
+            y_train=y_train,
+            epochs=network.epochs,
+            batch_size=network.batch_size,
+        )
+        acc = model.evaluate(
+            x_test=x_test,
+            y_test=y_test,
+            batch_size=network.batch_size,
         )
 
-    def evaluate(self, test_data: ndarray, test_targets: ndarray) -> float:
-        """Evaluate the test data
-        """
-        if not self.batch_size:
-            self.batch_size = 128
-        accuracy = self.mlp.evaluate(
-            test_data=test_data,
-            test_targets=test_targets,
-            batch_size=self.batch_size,
-        )
-
-        return accuracy * 100.0
-
-    def save(self):
-        """Save the model"""
-        self.mlp.save()
-
-
-@dataclass
-class MnistLoader:
-    """Load mlp model
-    """
-    model_path: str
-
-    def load(self) -> MLP:
-        """Load model for MnistClassifier
-        """
-        model = MLP(model_type="", model_path=self.model_path, load=True)
-
-        return model
-
-    def predict(self, model: MLP, image: ndarray) -> int:
-        """Predict 
-        """
-        result = model.predict(image=image)
-
-        return result[0]
+        print(f"\n\nAccuracy: {acc * 100}%")

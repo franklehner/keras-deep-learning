@@ -114,9 +114,10 @@ class NNSequential:
         if activation is not None:
             self.model.add(Activation(activation=activation))
 
-    def add_dropout(self, rate: float):
+    def add_dropout(self, rate: Optional[float]):
         """add dropout layer"""
-        self.model.add(Dropout(rate=rate))
+        if rate is not None:
+            self.model.add(Dropout(rate=rate))
 
     def add_max_pooling(self, pool_size: Tuple[int, int]):
         """add maxpooling 2d"""

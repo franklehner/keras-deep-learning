@@ -1,90 +1,61 @@
 """Application for mnist classifier mlp
 """
+from dataclasses import dataclass
 from typing import List, Tuple
+
+from keras.utils import to_categorical
 from numpy import ndarray
-import matplotlib.pyplot as plt
 
-from src.domain.mnist_mlp import MnistClassifier, MnistLoader
-from src.domain.models.multilayer_perceptron import MLP
-from src.infra.datasets import Mnist as MnistDatasets
-
-
-def load_mnist() -> MnistDatasets:
-    """load data"""
-    mnist = MnistDatasets()
-
-    return mnist
+from src.domain.models.datasets import Mnist
+from src.domain.models.net_configurations import Layer, Network
+from src.domain.models.neural_network import DenseLayer, NNSequential
 
 
-def generate_layers(
-    count: int, layer: str, units: int, num_labels: int
-) -> List[Tuple[str, int]]:
-    """generate layers"""
-    layers = [(layer, units) for _ in range(count - 1)]
-    layers.append((layer, num_labels))
+@dataclass
+class NetBuilderMLP:
+    """Builder for fully dense network"""
 
-    return layers
+    model_path: str
+    dataset: Mnist
+    network: Network
 
+    def prepare_dataset(self) -> Tuple[ndarray, ndarray, ndarray, ndarray]:
+        """Bring dataset in valuable format"""
+        image_size = self.dataset.x_train.shape[1]
+        y_train = to_categorical(y=self.dataset.y_train)
+        y_test = to_categorical(y=self.dataset.y_test)
+        x_train = (
+            self.dataset.x_train.reshape(-1, image_size * image_size).astype("float32")
+            / 255
+        )
+        x_test = (
+            self.dataset.x_test.reshape(-1, image_size * image_size).astype("float32")
+            / 255
+        )
 
-def generate_activations(count: int, activation: str, last: str) -> List[str]:
-    """generate activations"""
-    activations = [activation for _ in range(count - 1)]
-    activations.append(last)
+        return x_train, y_train, x_test, y_test
 
-    return activations
+    def _parse_sequence(self, sequence: List[Layer]) -> NNSequential:
+        """parse sequence into a neural net"""
+        model = NNSequential(path=self.model_path)
+        for layer in sequence:
+            if layer.name == "Dense":
+                model.add_layer(
+                    layer=DenseLayer(
+                        units=layer.units,
+                        input_dim=layer.input_dim,
+                    ),
+                )
+            elif layer.name == "Activation":
+                model.add_activation(activation=layer.activation)
+            elif layer.name == "Dropout":
+                model.add_dropout(rate=layer.dropout)
 
+        return model
 
-def generate_dropouts(count: int, rate: float) -> List[float]:
-    """generate dropouts"""
-    dropouts = [rate for _ in range(count)]
+    def parse_network(self) -> NNSequential:
+        """parse the network sequence into Neural Net"""
+        sequence = self.network.sequence
+        model = self._parse_sequence(sequence=sequence)
 
-    return dropouts
-
-
-def run(  # pylint: disable=too-many-arguments
-    mnist: MnistDatasets,
-    layers: List[Tuple[str, int]],
-    activations: List[str],
-    dropouts: List[float],
-    model_path: str,
-    batchsize: int,
-    epochs: int,
-):
-    """runner method"""
-    model = MnistClassifier(
-        input_dim=mnist.input_size,
-        layers=layers,
-        activations=activations,
-        dropout=dropouts,
-        model_path=model_path,
-        batch_size=batchsize,
-    )
-    model.compile(
-        loss="categorical_crossentropy",
-        optimizer="adam",
-        metrics=["accuracy"],
-    )
-    model.fit(mnist.x_train, mnist.y_train, epochs=epochs)
-    accuracy = model.evaluate(
-        test_data=mnist.x_test,
-        test_targets=mnist.y_test,
-    )
-    model.save()
-
-    print(f"\n\nTest accuracy: {accuracy}")
-
-
-def plot_image(image: ndarray, cmap: str = "gray"):
-    """Plot image
-    """
-    plt.imshow(image, cmap=cmap)
-    plt.show()
-
-
-def load_model(filepath: str) -> MLP:
-    """Load trained model
-    """
-    model = MnistLoader(model_path=filepath)
-    mlp = model.load()
-
-    return mlp
+        return model

@@ -5,38 +5,35 @@ import logging
 
 import click
 
-import src.app.mnist_classifier_mlp as mlp
+from src.app.yaml_reader import YamlNetwork
+from src.app.dataset_reader import MnistDataSet
+from src.domain.mnist_mlp import MLP
 
 _log = logging.getLogger(__name__)
 
 
 @click.command()
-def cli():
+@click.option(
+    "--filepath",
+    default="data/mnist_mlp_sequential.yaml",
+    help="Filepath to network configuration",
+)
+@click.option(
+    "--model-path",
+    default="data/mnist_mlp_sequential.keras",
+    help="Filepath to save the model",
+)
+def cli(filepath: str, model_path: str):
     """Client"""
-    count = 3
-    mnist = mlp.load_mnist()
-    layers = mlp.generate_layers(
-        count=count,
-        layer="Dense",
-        units=256,
-        num_labels=mnist.num_labels,
+    yaml_network = YamlNetwork()
+    mnist_dataset = MnistDataSet()
+    mlp = MLP(
+        path=filepath,
+        model_path=model_path,
+        yaml_network=yaml_network,
+        mnist_dataset=mnist_dataset,
     )
-    activations = mlp.generate_activations(
-        count=3,
-        activation="relu",
-        last="softmax",
-    )
-    dropout_count = count - 1
-    dropouts = mlp.generate_dropouts(count=dropout_count, rate=0.45)
-    mlp.run(
-        mnist=mnist,
-        layers=layers,
-        activations=activations,
-        dropouts=dropouts,
-        model_path="data/mlp-mnist.keras",
-        batchsize=128,
-        epochs=20,
-    )
+    mlp.run()
 
 
 if __name__ == "__main__":
