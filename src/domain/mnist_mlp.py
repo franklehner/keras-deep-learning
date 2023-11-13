@@ -46,5 +46,6 @@ class MLP:
             y_test=y_test,
             batch_size=network.batch_size,
         )
+        model.save()
 
         print(f"\n\nAccuracy: {acc * 100}%")

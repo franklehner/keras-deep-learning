@@ -18,7 +18,7 @@ from keras.models import Sequential, load_model, save_model
 from keras.utils import plot_model
 from numpy import ndarray
 
-from src.domain.models.net_configurations import CNNShape, DenseShape, RNNShape
+from src.domain.models.net_configurations import DenseShape, InputShape
 
 
 @dataclass
@@ -42,24 +42,29 @@ class DenseLayer:
 class CNNLayer:
     """Class with conv2d layers"""
 
-    kernel_size: int
-    activation: str
-    filters: int
-    input_shape: Optional[CNNShape] = None
+    kernel_size: Optional[int] = None
+    activation: Optional[str] = None
+    filters: Optional[int] = None
+    input_shape: Optional[InputShape] = None
     layer: Conv2D = field(init=False)
 
     def __post_init__(self):
-        if not self.input_shape:
-            self.layer = Conv2D(
-                filters=self.filters,
-                kernel_size=self.kernel_size,
-            )
-        else:
-            self.layer = Conv2D(
-                filters=self.filters,
-                kernel_size=self.kernel_size,
-                input_shape=self.input_shape,
-            )
+        if (
+            self.kernel_size is not None
+            and self.activation is not None
+            and self.filters is not None
+        ):
+            if not self.input_shape:
+                self.layer = Conv2D(
+                    filters=self.filters,
+                    kernel_size=self.kernel_size,
+                )
+            else:
+                self.layer = Conv2D(
+                    filters=self.filters,
+                    kernel_size=self.kernel_size,
+                    input_shape=self.input_shape,
+                )
 
 
 @dataclass
@@ -68,11 +73,13 @@ class RNNLayer:
 
     units: Optional[int] = None
     dropout: Optional[float] = None
-    input_shape: Optional[RNNShape] = None
+    input_shape: Optional[InputShape] = None
     layer: SimpleRNN = field(init=False)
 
     def __post_init__(self):
         if self.input_shape:
+            if len(self.input_shape) > 2:
+                self.input_shape = self.input_shape[:2]
             if self.units is not None and self.dropout is not None:
                 self.layer = SimpleRNN(
                     units=self.units,
@@ -119,9 +126,10 @@ class NNSequential:
         if rate is not None:
             self.model.add(Dropout(rate=rate))
 
-    def add_max_pooling(self, pool_size: Tuple[int, int]):
+    def add_max_pooling(self, pool_size: Optional[Tuple[int, int]]):
         """add maxpooling 2d"""
-        self.model.add(MaxPooling2D(pool_size=pool_size))
+        if pool_size:
+            self.model.add(MaxPooling2D(pool_size=pool_size))
 
     def flatten(self):
         """flatten the array"""
@@ -162,6 +170,23 @@ class NNSequential:
 
         return acc
 
+    def predict(self, images: ndarray) -> ndarray:
+        """predict images"""
+        return self.model.predict(x=images)
+
     def summary(self):
         """Write summary"""
         self.model.summary()
+
+
+@dataclass
+class NNFunctional:
+    """functional api"""
+
+    path: str
+    load: bool = False
+    model: Model = field(init=False)
+
+    def predict(self, images: ndarray) -> ndarray:
+        """predict images"""
+        return self.model.predict(x=images)

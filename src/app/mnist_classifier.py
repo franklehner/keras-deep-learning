@@ -7,11 +7,11 @@ from numpy import ndarray
 
 from src.domain.models.datasets import Mnist
 from src.domain.models.net_configurations import Layer, Network
-from src.domain.models.neural_network import DenseLayer, NNSequential, RNNLayer
+from src.domain.models.neural_network import DenseLayer, NNSequential, RNNLayer, CNNLayer
 
 
 @dataclass
-class NetBuilderRNN:
+class NetBuilder:
     """Builder for recurrent network"""
 
     model_path: str
@@ -53,11 +53,26 @@ class NetBuilderRNN:
                         input_dim=layer.input_dim,
                     ),
                 )
+            elif layer.name == "Conv2D":
+                model.add_layer(
+                    layer=CNNLayer(
+                        kernel_size=layer.kernel_size,
+                        activation=layer.activation,
+                        filters=layer.filters,
+                        input_shape=layer.input_shape,
+                    ),
+                )
             elif layer.name == "Activation":
                 model.add_activation(activation=layer.activation)
+            elif layer.name == "Dropout":
+                model.add_dropout(rate=layer.rate)
+            elif layer.name == "MaxPooling":
+                model.add_max_pooling(pool_size=layer.pool_size)
+            elif layer.name == "Flatten":
+                model.flatten()
+
 
         return model
-
     def parse_network(self) -> NNSequential:
         """parse the network"""
         sequence = self.network.sequence

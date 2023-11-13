@@ -5,9 +5,9 @@ import logging
 
 import click
 
-from src.app.yaml_reader import YamlNetwork
 from src.app.dataset_reader import MnistDataSet
-from src.domain.mnist_mlp import MLP
+from src.app.yaml_reader import YamlNetwork
+from src.domain.mnist_classifier import MnistNet
 
 _log = logging.getLogger(__name__)
 
@@ -27,13 +27,17 @@ def cli(filepath: str, model_path: str):
     """Client"""
     yaml_network = YamlNetwork()
     mnist_dataset = MnistDataSet()
-    mlp = MLP(
+    mlp = MnistNet(
         path=filepath,
         model_path=model_path,
         yaml_network=yaml_network,
         mnist_dataset=mnist_dataset,
     )
-    mlp.run()
+    mlp.run(
+        loss="categorical_crossentropy",
+        optimizer="adam",
+        metrics=["accuracy"],
+    )
 
 
 if __name__ == "__main__":

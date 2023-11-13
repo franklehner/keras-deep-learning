@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 """This script ...
 """
-import os
 import logging
+import os
+
 import click
-import numpy as np
 
-import src.app.mnist_classifier_mlp as mlp_cls
-
+from src.domain.recognize import Model
 
 _log = logging.getLogger(__name__)
 
@@ -19,24 +18,26 @@ BASE_PATH = "data/"
 @click.option(
     "--model-name",
     "-m",
-    default="mlp-mnist.keras",
+    default="mlp-mnist-sequential.keras",
     help="Filepath to the model",
 )
-def cli(model_name: str):
-    """Client
-    """
+@click.option(
+    "--size",
+    default=2,
+    help="size of the labels to predict",
+)
+def cli(model_name: str, size: int):
+    """Client"""
     filename = os.path.join(BASE_PATH, model_name)
-    mnist = mlp_cls.load_mnist()
-    indexes = np.random.randint(0, mnist.x_test.shape[0], size=10)
-    test_images = mnist.x_test[indexes]
-    images = test_images.reshape(-1, 28, 28)
-    labels = mnist.y_test[indexes]
-    model = mlp_cls.load_model(filepath=filename)
-    for i in range(len(indexes)):
-        mlp_cls.plot_image(image=images[i])
-        print(f"Real label: {np.argmax(labels[i])}")
-        result = model.predict(image=test_images[i].reshape(-1, test_images[i].shape[0]))
-        print(f"Predicted: {np.argmax(result)}")
+    model = Model(path=filename)
+    result = model.recognize_random_sample(size=size)
+    if result:
+        classifications, real_labels = result
+        for classification, real_label in zip(classifications, real_labels):
+            print(
+                f"Classification: {classification}",
+                f"Real Label: {real_label}\t\t{classification == real_label}",
+            )
 
 
 if __name__ == "__main__":
