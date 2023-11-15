@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Classify mnist data
+"""This script ...
 """
 import logging
 
@@ -13,21 +13,22 @@ _log = logging.getLogger(__name__)
 @click.command()
 @click.option(
     "--filepath",
-    default="data/mnist_mlp_sequential.yaml",
-    help="Filepath to network configuration",
+    default="data/mnist_cnn_y.yaml",
+    help="Path to the yaml file",
 )
 @click.option(
-    "--model-path",
-    default="data/mnist_mlp_sequential.keras",
-    help="Filepath to save the model",
+    "--path",
+    default="data/mnist_cnn_y.keras",
+    help="Path to the keras file",
 )
-def cli(filepath: str, model_path: str):
-    """Client"""
-    mlp = MnistNet(
+def cli(filepath: str, path: str):
+    """Client
+    """
+    net = MnistNet(
         path=filepath,
-        model_path=model_path,
+        model_path=path,
     )
-    mlp.run(
+    net.run_with_branches(
         loss="categorical_crossentropy",
         optimizer="adam",
         metrics=["accuracy"],

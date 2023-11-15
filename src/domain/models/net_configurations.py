@@ -1,6 +1,6 @@
 """Configuration for the network
 """
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import List, Optional, Tuple
 
 DenseShape = int
@@ -21,6 +21,18 @@ class Layer:  # pylint: disable=too-many-instance-attributes
     filters: Optional[int] = None
     pool_size: Optional[Tuple[int, int]] = None
     flatten: Optional[str] = None
+    dilation_rate: Optional[float] = None
+    padding: Optional[str] = None
+
+    def to_dict(self):
+        """convert layer to dict for given values"""
+        params = {
+            k: v for k, v in asdict(self).items()
+            if v is not None
+        }
+        params.pop("name")
+
+        return params
 
 
 @dataclass
@@ -31,3 +43,4 @@ class Network:
     batch_size: int
     epochs: int
     net: str
+    network_type: str

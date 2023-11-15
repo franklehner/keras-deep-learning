@@ -1,7 +1,7 @@
 """Read yaml files with the configuration of the net
 """
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import yaml
 
@@ -23,12 +23,49 @@ class YAMLReader:
             sequence=sequence,
             batch_size=result.get("batch_size"),
             epochs=result.get("epochs"),
-            net=result.get("net")
+            net=result.get("net"),
+            network_type=result.get("network_type"),
         )
 
         return network
 
-    def parse_sequence(self, sequence: Dict) -> List[Layer]:
+    def read_splitted_network(self) -> List[Network]:
+        """Read yaml file for more branches"""
+        with open(self.path, "r", encoding="utf-8") as f_obj:
+            result = yaml.load(stream=f_obj, Loader=yaml.FullLoader)
+
+        sequence = result["Sequence"]
+        branches = []
+        rest = []
+        for seq in sequence:
+            if "Branch" in seq:
+                branches.append(self.parse_sequence(seq["Branch"]))
+            else:
+                rest.append(seq)
+
+        rest = self.parse_sequence(rest)
+        networks = [
+            Network(
+                sequence=sequence,
+                batch_size=result.get("batch_size"),
+                epochs=result.get("epochs"),
+                net=result.get("net"),
+                network_type=result.get("network_type"),
+            ) for sequence in branches
+        ]
+        networks.append(
+            Network(
+                sequence=rest,
+                batch_size=result.get("batch_size"),
+                epochs=result.get("epochs"),
+                net=result.get("net"),
+                network_type=result.get("network_type"),
+            ),
+        )
+
+        return networks
+
+    def parse_sequence(self, sequence: List[Dict]) -> List[Layer]:
         """parse sequence"""
         params = []
         for item in sequence:
@@ -45,8 +82,9 @@ class YAMLReader:
                     filters=value.get("filters"),
                     rate=value.get("rate"),
                     pool_size=value.get("pool_size"),
+                    dilation_rate=value.get("dilation_rate"),
+                    padding=value.get("padding"),
                 )
                 params.append(layer)
 
         return params
-                    

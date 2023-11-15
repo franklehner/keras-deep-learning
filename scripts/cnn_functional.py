@@ -2,36 +2,26 @@
 """This script ...
 """
 import logging
-
 import click
 
 from src.domain.mnist_classifier import MnistNet
+
 
 _log = logging.getLogger(__name__)
 
 
 @click.command()
-@click.option(
-    "--filepath",
-    default="data/mnist_cnn_sequential.yaml",
-    help="File path to the network",
-)
-@click.option(
-    "--path",
-    default="data/cnn-mnist.keras",
-    help="Path to the model",
-)
-def cli(filepath: str, path: str):
-    """Client"""
+def cli():
+    """Client
+    """
     cnn = MnistNet(
-        path=filepath,
-        model_path=path,
+        path="data/mnist_cnn_functional.yaml",
+        model_path="data/foo.keras",
     )
-
     cnn.run(
         optimizer="adam",
         loss="categorical_crossentropy",
-        metrics=["accuracy"]
+        metrics=["accuracy"],
     )
 
 

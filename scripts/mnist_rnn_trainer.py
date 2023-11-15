@@ -5,8 +5,6 @@ import logging
 
 import click
 
-from src.app.dataset_reader import MnistDataSet
-from src.app.yaml_reader import YamlNetwork
 from src.domain.mnist_classifier import MnistNet
 
 _log = logging.getLogger(__name__)
@@ -25,13 +23,9 @@ _log = logging.getLogger(__name__)
 )
 def cli(filepath: str, path: str):
     """Client"""
-    yaml_network = YamlNetwork()
-    mnist_dataset = MnistDataSet()
     rnn = MnistNet(
         path=filepath,
         model_path=path,
-        yaml_network=yaml_network,
-        mnist_dataset=mnist_dataset,
     )
     rnn.run(
         loss="categorical_crossentropy",
