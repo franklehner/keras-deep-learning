@@ -7,9 +7,14 @@ from numpy import ndarray
 from src.app.dataset_reader import MnistDataSet
 from src.app.mnist_classifier import NetBuilder
 from src.app.yaml_reader import YamlNetwork
-from src.domain.models.datasets import Mnist
+from src.domain.models.datasets import DataSet
 from src.domain.models.net_configurations import Network
-from src.domain.models.neural_network import NNFunctional, NNSequential, Model, plot_model
+from src.domain.models.neural_network import (
+    Model,
+    NNFunctional,
+    NNSequential,
+    plot_model,
+)
 
 
 @dataclass
@@ -28,7 +33,7 @@ class MnistNet:
             splitted=splitted,
         )
 
-    def load_mnist_data(self) -> Mnist:
+    def load_mnist_data(self) -> DataSet:
         """load mnist dataset"""
         data_set = MnistDataSet()
 
