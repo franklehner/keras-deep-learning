@@ -7,7 +7,7 @@ from numpy import ndarray
 
 from src.app.dataset_reader import MnistDataSet
 from src.app.model_loader import load_model
-from src.domain.models.datasets import Mnist
+from src.domain.models.datasets import DataSet
 from src.domain.models.neural_network import NNFunctional, NNSequential
 
 ClassificationColl = Tuple[List[ndarray], List[int]]
@@ -25,7 +25,7 @@ class Model:
 
         return model
 
-    def load_dataset(self) -> Mnist:
+    def load_dataset(self) -> DataSet:
         """load dataset"""
         dataset = MnistDataSet().load_dataset()
 
