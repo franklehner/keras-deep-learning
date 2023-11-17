@@ -6,6 +6,7 @@ from numpy import ndarray
 
 from src.app.dataset_reader import MnistDataSet
 from src.app.mnist_classifier import NetBuilder
+from src.app.net_inputs import prepare_dataset
 from src.app.yaml_reader import YamlNetwork
 from src.domain.models.datasets import DataSet
 from src.domain.models.net_configurations import Network
@@ -115,7 +116,6 @@ class MnistNet:
         mnist_dataset = self.load_mnist_data()
         net_builder = NetBuilder(
             model_path=self.model_path,
-            dataset=mnist_dataset,
             network=network,
         )
         model = net_builder.parse_network()
@@ -129,7 +129,7 @@ class MnistNet:
             optimizer=optimizer,
             metrics=metrics,
         )
-        x_train, y_train, x_test, y_test = net_builder.prepare_dataset()
+        x_train, y_train, x_test, y_test = prepare_dataset(dataset=mnist_dataset)
         x_train, x_test = self.configure_dataset(
             x_train=x_train,
             x_test=x_test,
@@ -155,14 +155,12 @@ class MnistNet:
         for network in networks[:-1]:
             net_builder = NetBuilder(
                 model_path=self.model_path,
-                dataset=mnist_dataset,
                 network=network,
             )
             branches.append(net_builder.parse_sequence_functional(network.sequence))
         network = networks[-1]
         net_builder = NetBuilder(
             model_path=self.model_path,
-            dataset=mnist_dataset,
             network=network,
         )
         inputs = [branch[0] for branch in branches]
@@ -183,7 +181,7 @@ class MnistNet:
             optimizer=optimizer,
             metrics=metrics,
         )
-        x_train, y_train, x_test, y_test = net_builder.prepare_dataset()
+        x_train, y_train, x_test, y_test = prepare_dataset(dataset=mnist_dataset)
         x_train, x_test = self.configure_dataset(
             x_train=x_train,
             x_test=x_test,
