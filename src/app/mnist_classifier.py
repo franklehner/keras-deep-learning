@@ -1,11 +1,11 @@
-"""Application for recurrent networks"""
+"""Application for Mnist classification networks"""
 from dataclasses import dataclass
 from typing import List, Tuple, Union
 
 from keras.utils import to_categorical
 from numpy import ndarray
 
-from src.domain.models.datasets import Mnist
+from src.domain.models.datasets import DataSet
 from src.domain.models.net_configurations import Layer, Network
 from src.domain.models.neural_network import (
     ActivationLayer,
@@ -36,7 +36,7 @@ class NetBuilder:
     """Builder for recurrent network"""
 
     model_path: str
-    dataset: Mnist
+    dataset: DataSet
     network: Network
 
     def prepare_dataset(self) -> Tuple[ndarray, ndarray, ndarray, ndarray]:
