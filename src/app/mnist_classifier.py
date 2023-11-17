@@ -2,10 +2,7 @@
 from dataclasses import dataclass
 from typing import List, Tuple, Union
 
-from keras.utils import to_categorical
-from numpy import ndarray
 
-from src.domain.models.datasets import DataSet
 from src.domain.models.net_configurations import Layer, Network
 from src.domain.models.neural_network import (
     ActivationLayer,
@@ -36,24 +33,7 @@ class NetBuilder:
     """Builder for recurrent network"""
 
     model_path: str
-    dataset: DataSet
     network: Network
-
-    def prepare_dataset(self) -> Tuple[ndarray, ndarray, ndarray, ndarray]:
-        """Bring the dataset in a valuable format"""
-        image_size = self.dataset.x_train.shape[1]
-        y_train = to_categorical(y=self.dataset.y_train)
-        y_test = to_categorical(y=self.dataset.y_test)
-        x_train = (
-            self.dataset.x_train.reshape(-1, image_size, image_size).astype("float32")
-            / 255
-        )
-        x_test = (
-            self.dataset.x_test.reshape(-1, image_size, image_size).astype("float32")
-            / 255
-        )
-
-        return x_train, y_train, x_test, y_test
 
     def concatenate_nets(
         self, inputs: List[NNFunctional], sequence: List[Layer],
