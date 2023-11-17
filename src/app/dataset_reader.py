@@ -1,7 +1,7 @@
 """Read keras datasets"""
 from dataclasses import dataclass
 
-from src.domain.models.datasets import DataSet, Mnist
+from src.domain.models.datasets import DataSet
 from src.infra.datasets import Cifar10Reader, Cifar100Reader, MnistReader
 
 
@@ -10,7 +10,7 @@ class MnistDataSet:
     """Mnist dataset
     """
 
-    def load_dataset(self) -> Mnist:
+    def load_dataset(self) -> DataSet:
         """load dataset"""
         reader = MnistReader()
 
