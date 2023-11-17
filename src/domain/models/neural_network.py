@@ -1,6 +1,7 @@
 """Entity for neural networks that are working with
 Sequential
 """
+import os
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple, Union
 
@@ -17,6 +18,7 @@ from keras.layers import (
     concatenate,
 )
 from keras.models import Sequential, load_model, save_model
+from keras.optimizers import RMSprop
 from keras.utils import plot_model
 from numpy import ndarray
 
@@ -258,7 +260,9 @@ class NNFunctional:
         return inputs
 
     def add_layer(
-        self, model: Model, layer: Union[DenseLayer, RNNLayer, CNNLayer]
+        self,
+        model: Model,
+        layer: Union[DenseLayer, RNNLayer, CNNLayer],
     ) -> Model:
         """add layer to model"""
         model = layer.layer(model)
@@ -312,7 +316,10 @@ class NNFunctional:
         return self
 
     def evaluate(
-        self, x: ndarray, y: ndarray, batch_size: int
+        self,
+        x: ndarray,
+        y: ndarray,
+        batch_size: int,
     ) -> Tuple[List[float], float]:
         """evaluate the model on the test data"""
         score = self.model.evaluate(
@@ -338,3 +345,56 @@ class Concatenation:
         """concatenation"""
 
         return concatenate(inputs=self.inputs)
+
+
+@dataclass
+class NeuralNet:
+    """abstract network"""
+
+    model: Model
+    model_type: str
+    dataset_name: str
+    save_dir: str = "saved_models"
+    name: str = field(init=False)
+    filepath: str = field(init=False)
+
+    def __post_init__(self):
+        self.name = "%s_%s_model.{epoch:03d}.hd5" % (
+            self.dataset_name,
+            self.model_type,
+        )
+        self.filepath = os.path.join(self.save_dir, self.name)
+
+    def lr_schedule(self, epoch: int) -> float:
+        """lr_scheduler"""
+        lr: float = 1e-3
+        if epoch > 180:
+            lr *= 0.5e-3
+        elif epoch > 160:
+            lr *= 1e-3
+        elif epoch > 120:
+            lr *= 1e-2
+        elif epoch > 80:
+            lr *= 1e-1
+
+        print(f"Learning rate: {lr}")
+
+        return lr
+
+    def compile(self):
+        """compile the model"""
+        self.model.compile(
+            loss="categorical_crossentropy",
+            optimizer=RMSprop(
+                learning_rate=self.lr_schedule(0),
+            ),
+            metrics=["acc"],
+        )
+
+    def summary(self):
+        """summary of the model"""
+        self.model.summary()
+
+    def plot_model(self, to_file: str):
+        """plot model"""
+        plot_model(model=self.model, to_file=to_file, show_shapes=True)
