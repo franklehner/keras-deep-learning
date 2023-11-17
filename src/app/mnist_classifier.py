@@ -56,7 +56,7 @@ class NetBuilder:
         return x_train, y_train, x_test, y_test
 
     def concatenate_nets(
-        self, inputs: List[NNFunctional], sequence: List[Layer]
+        self, inputs: List[NNFunctional], sequence: List[Layer],
     ) -> NNFunctional:
         """concatenate nets"""
         net = Concatenation(inputs=inputs)
@@ -78,16 +78,16 @@ class NetBuilder:
         for idx, layer in enumerate(sequence[1:-1]):
             if idx == 0:
                 branch = net.add_layer(
-                    model=inputs, layer=LayerMapper[layer.name](**layer.to_dict())
+                    model=inputs, layer=LayerMapper[layer.name](**layer.to_dict()),
                 )
             else:
                 branch = net.add_layer(
-                    model=branch, layer=LayerMapper[layer.name](**layer.to_dict())
+                    model=branch, layer=LayerMapper[layer.name](**layer.to_dict()),
                 )
 
         layer = sequence[-1]
         outputs = net.add_layer(
-            model=branch, layer=LayerMapper[layer.name](**layer.to_dict())
+            model=branch, layer=LayerMapper[layer.name](**layer.to_dict()),
         )
 
         return inputs, outputs
