@@ -6,9 +6,8 @@ from numpy import ndarray
 
 
 @dataclass
-class Mnist:
-    """Mnist dataset
-    """
+class DataSet:
+    """Train and test data"""
     x_train: ndarray
     y_train: ndarray
     x_test: ndarray
