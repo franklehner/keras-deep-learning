@@ -48,6 +48,7 @@ class DenseLayer:
     units: Optional[int] = None
     input_dim: Optional[DenseShape] = None
     activation: Optional[str] = None
+    name: Optional[str] = None
     layer: Dense = field(init=False)
 
     def __post_init__(self):
@@ -63,7 +64,7 @@ class DenseLayer:
 
 
 @dataclass
-class CNNLayer:
+class CNNLayer:  # pylint: disable=too-many-instance-attributes
     """Class with conv2d layers"""
 
     kernel_size: Optional[int] = None
