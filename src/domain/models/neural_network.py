@@ -71,6 +71,7 @@ class CNNLayer:
     input_shape: Optional[InputShape] = None
     dilation_rate: Optional[float] = None
     padding: Optional[str] = None
+    strides: Optional[str] = None
     layer: Conv2D = field(init=False)
 
     def __post_init__(self):
@@ -84,6 +85,7 @@ class CNNLayer:
                     "input_shape",
                     "dilation_rate",
                     "padding",
+                    "strides",
                 ],
                 [
                     self.kernel_size,
@@ -92,6 +94,7 @@ class CNNLayer:
                     self.input_shape,
                     self.dilation_rate,
                     self.padding,
+                    self.strides,
                 ],
             )
             if v is not None
