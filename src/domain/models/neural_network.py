@@ -10,6 +10,7 @@ from keras import Model
 from keras.layers import (
     Activation,
     Conv2D,
+    Conv2DTranspose,
     Dense,
     Dropout,
     Flatten,
@@ -97,6 +98,52 @@ class CNNLayer:
         }
 
         self.layer = Conv2D(**params)
+
+
+@dataclass
+class CNNTransposeLayer:  # pylint: disable=too-many-instance-attributes
+    """Class with conv2d layers"""
+
+    kernel_size: Optional[int] = None
+    activation: Optional[str] = None
+    filters: Optional[int] = None
+    input_shape: Optional[InputShape] = None
+    dilation_rate: Optional[float] = None
+    padding: Optional[str] = None
+    strides: Optional[str] = None
+    name: Optional[str] = None
+    layer_name: Optional[str] = None
+    layer: Conv2D = field(init=False)
+
+    def __post_init__(self):
+        params = {
+            k: v
+            for k, v in zip(
+                [
+                    "kernel_size",
+                    "activation",
+                    "filters",
+                    "input_shape",
+                    "dilation_rate",
+                    "padding",
+                    "strides",
+                    "name",
+                ],
+                [
+                    self.kernel_size,
+                    self.activation,
+                    self.filters,
+                    self.input_shape,
+                    self.dilation_rate,
+                    self.padding,
+                    self.strides,
+                    self.name,
+                ],
+            )
+            if v is not None
+        }
+
+        self.layer = Conv2DTranspose(**params)
 
 
 @dataclass
@@ -276,7 +323,7 @@ class NNFunctional:
     def add_layer(
         self,
         model: Model,
-        layer: Union[DenseLayer, RNNLayer, CNNLayer],
+        layer: Union[DenseLayer, RNNLayer, CNNLayer, CNNTransposeLayer],
     ) -> Model:
         """add layer to model"""
         model = layer.layer(model)
