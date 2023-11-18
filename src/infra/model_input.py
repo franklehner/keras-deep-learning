@@ -1,7 +1,7 @@
 """Read yaml files with the configuration of the net
 """
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 import yaml
 
@@ -84,6 +84,8 @@ class YAMLReader:
                     pool_size=value.get("pool_size"),
                     dilation_rate=value.get("dilation_rate"),
                     padding=value.get("padding"),
+                    layer_name=value.get("layer_name"),
+                    strides=value.get("strides"),
                 )
                 params.append(layer)
 
