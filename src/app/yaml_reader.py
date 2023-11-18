@@ -12,7 +12,7 @@ class YamlNetwork:
     """Reader"""
 
     def read_network_from_yaml(
-        self, network_path: str, splitted: bool,
+        self, network_path: str, splitted: bool = False,
     ) -> Union[Network, List[Network]]:
         """Read network from yaml file"""
         reader = YAMLReader(path=network_path)
