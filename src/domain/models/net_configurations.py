@@ -23,6 +23,8 @@ class Layer:  # pylint: disable=too-many-instance-attributes
     flatten: Optional[str] = None
     dilation_rate: Optional[float] = None
     padding: Optional[str] = None
+    strides: Optional[int] = None
+    layer_name: Optional[str] = None
 
     def to_dict(self):
         """convert layer to dict for given values"""
@@ -31,6 +33,8 @@ class Layer:  # pylint: disable=too-many-instance-attributes
             if v is not None
         }
         params.pop("name")
+        if "layer_name" in params:
+            params["name"] = params.pop("layer_name")
 
         return params
 
