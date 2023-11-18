@@ -5,7 +5,7 @@ from typing import List, Tuple, Union
 from numpy import ndarray
 
 from src.app.dataset_reader import MnistDataSet
-from src.app.mnist_classifier import NetBuilder
+from src.app.net_builder import NetBuilder
 from src.app.net_inputs import prepare_dataset
 from src.app.yaml_reader import YamlNetwork
 from src.domain.models.datasets import DataSet
