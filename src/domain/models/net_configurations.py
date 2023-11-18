@@ -4,7 +4,7 @@ from dataclasses import asdict, dataclass
 from typing import List, Optional, Tuple
 
 DenseShape = int
-InputShape = Tuple[int, int, int]
+InputShape = Tuple[int, ...]
 
 
 @dataclass
