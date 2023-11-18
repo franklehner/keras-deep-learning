@@ -16,6 +16,7 @@ from keras.layers import (
     Flatten,
     Input,
     MaxPooling2D,
+    Reshape,
     SimpleRNN,
     concatenate,
 )
