@@ -5,6 +5,7 @@ import os
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple, Union
 
+import keras.backend as k
 from keras import Model
 from keras.layers import (
     Activation,
@@ -23,6 +24,19 @@ from keras.utils import plot_model
 from numpy import ndarray
 
 from src.domain.models.net_configurations import DenseShape, InputShape
+
+
+@dataclass
+class ShapeLayer:
+    """shape_layer"""
+
+    int_shape: Optional[int] = 0
+
+    def get_shape(self, model: Model) -> Tuple[int, ...]:
+        """get shape"""
+        shape = k.int_shape(model)
+
+        return shape[1:]
 
 
 @dataclass
@@ -268,6 +282,18 @@ class NNFunctional:
         model = layer.layer(model)
 
         return model
+
+    def reshape(self, model: Model, input_shape: InputShape) -> Model:
+        """reshape layer"""
+        model = Reshape(input_shape)(model)
+
+        return model
+
+    def get_shape(self, model: Model, layer: ShapeLayer) -> InputShape:
+        """get shape of the model"""
+        shape = layer.get_shape(model=model)
+
+        return shape
 
     def generate_model(self, inputs: Model, outputs: Model) -> Model:
         """generate model from in- and output"""
