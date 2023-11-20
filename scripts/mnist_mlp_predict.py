@@ -6,7 +6,7 @@ import os
 
 import click
 
-from src.domain.recognize import Model
+from src.domain.recognize import Recognizer
 
 _log = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ BASE_PATH = "data/"
 def cli(model_name: str, size: int):
     """Client"""
     filename = os.path.join(BASE_PATH, model_name)
-    model = Model(path=filename)
+    model = Recognizer(path=filename)
     result = model.recognize_random_sample(size=size)
     if result:
         classifications, real_labels = result

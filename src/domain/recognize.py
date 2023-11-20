@@ -14,7 +14,7 @@ ClassificationColl = Tuple[List[ndarray], List[int]]
 
 
 @dataclass
-class Model:
+class Recognizer:
     """Model"""
 
     path: str
