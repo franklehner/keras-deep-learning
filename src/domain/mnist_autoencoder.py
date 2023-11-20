@@ -1,5 +1,5 @@
 """Autoencoder with mnist data"""
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
 
 from keras.models import Model
@@ -22,6 +22,10 @@ class MnistAutoencoder:
     """Autoencoder for mnist dataset"""
 
     model_path: str
+    encoder_path: str
+    decoder_path: str
+    epochs: int = field(init=False)
+    batch_size: int = field(init=False)
 
     def get_dataset(self) -> DataSet:
         """get mnist data"""
@@ -63,7 +67,7 @@ class MnistAutoencoder:
     def create_model(self) -> Model:
         """create model"""
         encoder_network = self.get_network(
-            filepath="data/model_inputs/mnist_encoder.yaml",
+            filepath=self.encoder_path,
         )
         enc_inputs, enc_outputs, enc_builder = self.build_network(network=encoder_network)
         encoder = Model(
@@ -79,7 +83,7 @@ class MnistAutoencoder:
             show_layer_activations=True,
         )
         decoder_network = self.get_network(
-            filepath="data/model_inputs/mnist_decoder.yaml",
+            filepath=self.decoder_path,
         )
         dec_inputs, dec_outputs, _ = self.build_network(
             network=decoder_network,
@@ -110,6 +114,8 @@ class MnistAutoencoder:
             show_shapes=True,
             show_layer_activations=True,
         )
+        self.epochs = decoder_network.epochs
+        self.batch_size = decoder_network.batch_size
 
         return autoencoder
 
@@ -128,7 +134,7 @@ class MnistAutoencoder:
             x_train,
             x_train,
             validation_data=(x_test, x_test),
-            epochs=1,
-            batch_size=32,
+            epochs=self.epochs,
+            batch_size=self.batch_size,
         )
         model.save(filepath=self.model_path)
