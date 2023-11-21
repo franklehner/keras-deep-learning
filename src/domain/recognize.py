@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple, Union
 import numpy as np
 from numpy import ndarray
 
-from src.app.dataset_reader import MnistDataSet
+from src.app.dataset_reader import MnistDataSet, Cifar10DataSet, Cifar100DataSet
 from src.app.model_loader import load_model
 from src.domain.models.datasets import DataSet
 from src.domain.models.neural_network import NNFunctional, NNSequential
@@ -28,6 +28,18 @@ class Recognizer:
     def load_dataset(self) -> DataSet:
         """load dataset"""
         dataset = MnistDataSet().load_dataset()
+
+        return dataset
+
+    def load_dataset_cifar10(self) -> DataSet:
+        """load cifar10 dataset"""
+        dataset = Cifar10DataSet().load_dataset()
+
+        return dataset
+
+    def load_dataset_cifar100(self) -> DataSet:
+        """load cifar100 dataset"""
+        dataset = Cifar100DataSet().load_dataset()
 
         return dataset
 

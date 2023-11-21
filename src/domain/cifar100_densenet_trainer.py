@@ -30,7 +30,7 @@ class Cifar100DenseNet:
         """load cifar100 dataset"""
         dataset = Cifar100DataSet()
 
-        return dataset.load()
+        return dataset.load_dataset()
 
     def get_model(self, data: DataSet) -> DenseNet:
         """get densenet model"""

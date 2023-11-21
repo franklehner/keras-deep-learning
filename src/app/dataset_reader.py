@@ -32,7 +32,7 @@ class Cifar10DataSet:
 class Cifar100DataSet:
     """cifar100 dataset"""
 
-    def load(self) -> DataSet:
+    def load_dataset(self) -> DataSet:
         """load dataset"""
         reader = Cifar100Reader()
 
