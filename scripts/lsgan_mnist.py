@@ -79,7 +79,6 @@ def build_and_train_models():
     adversarial.summary()
     models = (generator, discriminator, adversarial)
     gan.train(models=models, x_train=x_train)
-    
 
 
 if __name__ == "__main__":

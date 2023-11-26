@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 import math
 import os
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -30,21 +30,12 @@ class GAN:
         inputs: Model,
         activation: Optional[str] = "sigmoid",
         labels: Optional[Model] = None,
-        codes: Optional[List] = None,
     ) -> Model:
         """build generator"""
         image_resize = self.image_size // 4
         layer_filters = [128, 64, 32, 1]
         if labels is not None:
-            if codes is None:
-                inputs = [inputs, labels]
-            else:
-                inputs = [inputs, labels] + codes
-
-            x = layers.concatenate(inputs, axis=1)
-        elif codes is not None:
-            inputs = [inputs, codes]
-            x = layers.concatenate(inputs, axis=1)
+            x = layers.concatenate([inputs, labels], axis=1)
         else:
             x = inputs
 
@@ -79,12 +70,19 @@ class GAN:
         self,
         inputs: Model,
         activation: Optional[str] = "sigmoid",
-        num_labels: Optional[int] = None,
-        num_codes: Optional[int] = None,
+        labels: Optional[int] = None,
     ) -> Model:
         """build discriminator"""
         layer_filters = [32, 64, 128, 256]
         x = inputs
+        if labels is not None:
+            y = layers.Dense(
+                units=self.image_size * self.image_size,
+            )(labels)
+            y = layers.Reshape(
+                target_shape=(self.image_size, self.image_size, 1),
+            )(y)
+            x = layers.concatenate([x, y])
 
         for filters in layer_filters:
             if filters == layer_filters[-1]:
@@ -106,24 +104,6 @@ class GAN:
         if activation is not None:
             print(activation)
             outputs = layers.Activation(activation=activation)(outputs)
-
-        if num_labels:
-            layer = layers.Dense(units=layer_filters[-2])(x)
-            labels = layers.Dense(units=num_labels)(layer)
-            labels = layers.Activation(activation="softmax", name="label")(labels)
-
-            if num_codes is None:
-                outputs = [outputs, labels]
-            else:
-                code1 = layers.Dense(units=1)(layer)
-                code1 = layers.Activation(activation="sigmoid", name="code1")(code1)
-                code2 = layers.Dense(units=1)(layer)
-                code2 = layers.Activation(activation="sigmoid", name="code2")(code2)
-                outputs = [outputs, labels, code1, code2]
-        elif num_codes is not None:
-            z0_recon = layers.Dense(units=num_codes)(x)
-            z0_recon = layers.Activation(activation="tanh", name="z0")(z0_recon)
-            outputs = [outputs, z0_recon]
 
         return Model(inputs=inputs, outputs=outputs, name="discriminator")
 
@@ -170,14 +150,18 @@ class GAN:
         noise_label: Optional[np.ndarray] = None,
         show: bool = False,
         step: int = 0,
-    ):  #pylint: disable=too-many-arguments
+    ):  # pylint: disable=too-many-arguments
         """plot images"""
         os.makedirs(self.model_name, exist_ok=True)
         filename = os.path.join(self.model_name, f"{step}.png")
         rows = int(math.sqrt(noise_input.shape[0]))
+
         if noise_label is not None:
+            images = generator.predict([noise_input, noise_label])
             noise_input = np.array([noise_input, noise_label])
-        images = generator.predict(noise_input)
+        else:
+            images = generator.predict(noise_input)
+
         plt.figure(figsize=(2.2, 2.2))
         num_images = images.shape[0]
         image_size = images.shape[1]
