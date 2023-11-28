@@ -90,7 +90,7 @@ def build_and_train_models():
     input_shape = (gan.image_size, gan.image_size, 1)
     label_shape = (num_labels,)
     inputs = layers.Input(shape=input_shape, name="discriminator_input")
-    discriminator = gan.discriminator(inputs=inputs, labels=num_labels)
+    discriminator = gan.discriminator(inputs=inputs, num_labels=num_labels)
     optimizer = RMSprop(learning_rate=2e-4)
     loss = ["binary_crossentropy", "categorical_crossentropy"]
     discriminator.compile(

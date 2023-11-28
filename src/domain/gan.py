@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 import math
 import os
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -30,12 +30,20 @@ class GAN:
         inputs: Model,
         activation: Optional[str] = "sigmoid",
         labels: Optional[Model] = None,
+        codes: Optional[List[Model]] = None,
     ) -> Model:
         """build generator"""
         image_resize = self.image_size // 4
         layer_filters = [128, 64, 32, 1]
         if labels is not None:
-            inputs = [inputs, labels]
+            if codes is None:
+                inputs = [inputs, labels]
+            else:
+                inputs = [inputs, labels] + codes
+
+            x = layers.concatenate(inputs, axis=1)
+        elif codes is not None:
+            inputs = [inputs, codes]
             x = layers.concatenate(inputs, axis=1)
         else:
             x = inputs
@@ -71,7 +79,8 @@ class GAN:
         self,
         inputs: Model,
         activation: Optional[str] = "sigmoid",
-        labels: Optional[int] = None,
+        num_labels: Optional[int] = None,
+        num_codes: Optional[int] = None,
     ) -> Model:
         """build discriminator"""
         layer_filters = [32, 64, 128, 256]
@@ -98,11 +107,33 @@ class GAN:
             print(activation)
             outputs = layers.Activation(activation=activation)(outputs)
 
-        if labels is not None:
-            y = layers.Dense(units=layer_filters[-2])(x)
-            y = layers.Dense(units=labels)(y)
-            y = layers.Activation(activation="softmax")(y)
-            outputs = [outputs, y]
+        if num_labels is not None:
+            layer = layers.Dense(units=layer_filters[-2])(x)
+            labels = layers.Dense(units=num_labels)(layer)
+            labels = layers.Activation(activation="softmax")(labels)
+            if num_codes is None:
+                outputs = [outputs, labels]
+            else:
+                code1 = layers.Dense(units=1)(layer)
+                code1 = layers.Activation(
+                    activation="sigmoid",
+                    name="code1",
+                )(code1)
+                code2 = layers.Dense(units=1)(layer)
+                code2 = layers.Activation(
+                    activation="sigmoid",
+                    name="code2",
+                )(code2)
+
+                outputs = [outputs, labels, code1, code2]
+        elif num_codes is not None:
+            z0_recon = layers.Dense(units=num_codes)(x)
+            z0_recon = layers.Activation(
+                activation="tanh",
+                name="z0",
+            )(z0_recon)
+
+            outputs = [outputs, z0_recon]
 
         return Model(inputs=inputs, outputs=outputs, name="discriminator")
 
@@ -147,6 +178,7 @@ class GAN:
         generator: Model,
         noise_input: np.ndarray,
         noise_label: Optional[np.ndarray] = None,
+        noise_codes: Optional[List[np.ndarray]] = None,
         show: bool = False,
         step: int = 0,
     ):  # pylint: disable=too-many-arguments
@@ -154,9 +186,13 @@ class GAN:
         os.makedirs(self.model_name, exist_ok=True)
         filename = os.path.join(self.model_name, f"{step}.png")
         rows = int(math.sqrt(noise_input.shape[0]))
+        inputs = []
 
         if noise_label is not None:
-            images = generator.predict([noise_input, noise_label])
+            inputs = [noise_input, noise_label]
+            if noise_codes is not None:
+                inputs += noise_codes
+            images = generator.predict(inputs)
         else:
             images = generator.predict(noise_input)
 
