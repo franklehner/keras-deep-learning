@@ -35,7 +35,8 @@ class GAN:
         image_resize = self.image_size // 4
         layer_filters = [128, 64, 32, 1]
         if labels is not None:
-            x = layers.concatenate([inputs, labels], axis=1)
+            inputs = [inputs, labels]
+            x = layers.concatenate(inputs, axis=1)
         else:
             x = inputs
 
@@ -75,14 +76,6 @@ class GAN:
         """build discriminator"""
         layer_filters = [32, 64, 128, 256]
         x = inputs
-        if labels is not None:
-            y = layers.Dense(
-                units=self.image_size * self.image_size,
-            )(labels)
-            y = layers.Reshape(
-                target_shape=(self.image_size, self.image_size, 1),
-            )(y)
-            x = layers.concatenate([x, y])
 
         for filters in layer_filters:
             if filters == layer_filters[-1]:
@@ -104,6 +97,12 @@ class GAN:
         if activation is not None:
             print(activation)
             outputs = layers.Activation(activation=activation)(outputs)
+
+        if labels is not None:
+            y = layers.Dense(units=layer_filters[-2])(x)
+            y = layers.Dense(units=labels)(y)
+            y = layers.Activation(activation="softmax")(y)
+            outputs = [outputs, y]
 
         return Model(inputs=inputs, outputs=outputs, name="discriminator")
 
@@ -158,7 +157,6 @@ class GAN:
 
         if noise_label is not None:
             images = generator.predict([noise_input, noise_label])
-            noise_input = np.array([noise_input, noise_label])
         else:
             images = generator.predict(noise_input)
 
