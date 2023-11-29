@@ -34,17 +34,20 @@ _log = logging.getLogger(__name__)
     "--digit",
     "-d",
     required=False,
+    type=int,
     help="Specify a specific digit to generate",
 )
 @click.option(
     "--code1",
     "-a",
+    type=float,
     required=False,
     help="Specify latent code 1",
 )
 @click.option(
     "--code2",
     "-b",
+    type=float,
     required=False,
     help="Specify latent code 2",
 )
@@ -308,7 +311,7 @@ def train_adversarial(
 def test_generator(
     generator: Model,
     params: Params,
-    latent_size: int = 62,
+    latent_size: int = 100,
 ):
     """test generator"""
     label, code1, code2, p1, p2 = params
@@ -317,7 +320,7 @@ def test_generator(
         num_labels = 10
         noise_label = np.eye(num_labels)[np.random.choice(num_labels, 16)]
     else:
-        noise_label = np.zeros((16, 16))
+        noise_label = np.zeros((16, 10))
         noise_label[:, label] = 1
         step = label
 
